@@ -9,11 +9,16 @@
 #define WINDOW_HEIGHT 700
 #define WINDOW_WIDTH 1000
 #define ARRAY_SIZE 100
-#define SEGMENT 10
+#define SEGMENT 30
 #define STEP 0.01
 
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
+
+struct coefficients
+{
+	double a, b, c, d, e;
+};
 
 void DeInit(int error)
 {
@@ -104,9 +109,6 @@ void ValueSubstitution(double tempNum[], double x)
 	}
 }
 
-
-
-
 int IsNumber(char symb)
 {
 	if (symb == '0' || symb == '1' || symb == '2' || symb == '3' || symb == '4' || symb == '5' || symb == '6' || symb == '7' || symb == '8' || symb == '9')
@@ -130,14 +132,28 @@ void GetFunc(char func[])
 	for (i; temp != 13; )
 	{
 		temp = _getch();
-		if (IsArithmetic(temp) || IsNumber(temp))
+		if (IsArithmetic(temp) )
 		{
 			i++;
 			printf_s("%c", temp);
 			func[i] = temp;
 			continue;
-			
 		}
+		if (IsNumber(temp) == 1)
+		{
+			i++;
+			printf_s("%c", temp);
+			func[i] = temp;
+			continue;
+		}
+		if (IsNumber(temp) == 2 && IsNumber(func[i]) != 1)
+		{
+			i++;
+			printf_s("%c", temp);
+			func[i] = temp;
+			continue;
+		}
+
 		
 	}
 	func[i+1] = '\n';
@@ -178,7 +194,6 @@ void GetArithmetic(char func[], char arithmetic[])
 	arithmetic[n] = '\n';
 }
 
-
 void CopyArrayNum(double numbers[], double tempNum[])
 {
 	int i = 0;
@@ -186,8 +201,6 @@ void CopyArrayNum(double numbers[], double tempNum[])
 		tempNum[i] = numbers[i];
 	tempNum[i] = INT_MAX;
 }
-
-
 
 void Calculations(char arithmetic[], double tempNum[])
 {
@@ -256,7 +269,13 @@ void Calculations(char arithmetic[], double tempNum[])
 
 }
 
-void DrawGraph(char arithmetic[], double numbers[], double tempNum[], double start = (-WINDOW_WIDTH / 2 / SEGMENT), double stop = WINDOW_WIDTH / 2 / SEGMENT)
+double ctg(double value)
+{
+	return cos(value)/sin(value);
+}
+
+
+void DrawGraph(char arithmetic[], double numbers[], double tempNum[], coefficients funcCof, int type, double start = (-WINDOW_WIDTH / 2 / SEGMENT), double stop = WINDOW_WIDTH / 2 / SEGMENT)
 {
 	if (start < (-WINDOW_WIDTH / 2 / SEGMENT))
 		start = (-WINDOW_WIDTH / 2 / SEGMENT);
@@ -273,20 +292,87 @@ void DrawGraph(char arithmetic[], double numbers[], double tempNum[], double sta
 	{
 		if (i == 0)
 			continue;
-		CopyArrayNum(numbers, tempNum);
-		ValueSubstitution(tempNum, i);
-		Calculations(arithmetic, tempNum);
 
+		int temp0 = 1;
 		tempX = tempX1;
 		tempY = tempY1;
 		tempX1 = i;
-		tempY1 = -tempNum[0];
+
+
+		
+		if (type == 0)
+		{
+			CopyArrayNum(numbers, tempNum);
+			ValueSubstitution(tempNum, i);
+			Calculations(arithmetic, tempNum);
+			tempY1 = -tempNum[0];
+		}
+		
+		else if (type == 1)
+		{
+			tempY1 = -(funcCof.a * sin(funcCof.b * i + funcCof.c) + funcCof.d);
+		}
+
+		else if (type == 2)
+		{
+			tempY1 = -(funcCof.a * cos(funcCof.b * i + funcCof.c) + funcCof.d);
+		}
+
+		else if (type == 3)
+		{
+			tempY1 = -(funcCof.a * tan(funcCof.b * i + funcCof.c) + funcCof.d);
+		}
+
+		else if (type == 4)
+		{
+			tempY1 = -(funcCof.a * ctg(funcCof.b * i + funcCof.c) + funcCof.d);
+		}
+
+		else if (type == 5)
+		{
+			tempY1 = -(abs(funcCof.a * i + funcCof.b ) + funcCof.c);
+			//tempY1 = -( sqrt(cos(i)) * cos(200 * i) + sqrt(abs(i)) - 3.14 / 4 * pow((4 - i * i), 0.01));
+			//tempY1 = -sqrt(10.1 * 10 - i * i);
+		}
+
+
 		if (tempY1 > WINDOW_HEIGHT / SEGMENT)
 			tempY1 = WINDOW_HEIGHT / SEGMENT;
 		SDL_RenderDrawLine(ren, tempX * SEGMENT + WINDOW_WIDTH / 2, tempY * SEGMENT + WINDOW_HEIGHT / 2, tempX1 * SEGMENT + WINDOW_WIDTH / 2, tempY1 * SEGMENT + WINDOW_HEIGHT / 2);
+		//if(type == 5)SDL_RenderDrawLine(ren, tempX * SEGMENT + WINDOW_WIDTH / 2, -tempY * SEGMENT + WINDOW_HEIGHT / 2, tempX1 * SEGMENT + WINDOW_WIDTH / 2, -tempY1 * SEGMENT + WINDOW_HEIGHT / 2);
 	}
 }
 
+coefficients GetCoefficients(coefficients funcCof, int count)
+{
+	int i = 1;
+	if (i++ <= count) 
+	{
+		printf_s("Enter a: ");
+		scanf_s("%lf", &funcCof.a);
+	}
+	if (i++ <= count)
+	{
+		printf_s("Enter b: ");
+		scanf_s("%lf", &funcCof.b);
+	}
+	if (i++ <= count)
+	{
+		printf_s("Enter c: ");
+		scanf_s("%lf", &funcCof.c);
+	}
+	if (i++ <= count)
+	{
+		printf_s("Enter d: ");
+		scanf_s("%lf", &funcCof.d);
+	}
+	if (i++ <= count)
+	{
+		printf_s("Enter d: ");
+		scanf_s("%lf", &funcCof.d);
+	}
+	return funcCof;
+}
 
 int main(int argc, char* argv[])
 {
@@ -296,15 +382,61 @@ int main(int argc, char* argv[])
 	char arithmetic[ARRAY_SIZE / 2] = {};
 	double numbers[ARRAY_SIZE] = {};
 	double tempNum[ARRAY_SIZE] = {};
-	
-	GetFunc(func);
+	coefficients funcCof = { 0, 0, 0, 0, 0 };
+	int type;
 
-	GetNumbers(func, numbers);
+	printf_s("0 - Without trigonometry modules and brackets \n\
+1 - a * sin(b * x + c) + d \n\
+2 - a * cos(b * x + c) + d \n\
+3 - a * tg(b * x + c) + d \n\
+4 - a * ctg(b * x + c) + d \n\
+5 - |a * x + b| + c \n\
+Choose your function type:");
+	scanf_s("%d", &type);
 
-	GetArithmetic(func, arithmetic);
+	system("cls");
 
-	
-
+	switch (type)
+	{
+	case 0:
+	{
+		printf_s("Enter your function: ");
+		GetFunc(func);
+		GetArithmetic(func, arithmetic);
+		GetNumbers(func, numbers);
+		break;
+	}
+	case 1:
+	{
+		printf_s("a * sin(b * x + c) + d\n");
+		funcCof = GetCoefficients(funcCof, 4);
+		break;
+	}
+	case 2:
+	{
+		printf_s("a * cos(b * x + c) + d\n");
+		funcCof = GetCoefficients(funcCof, 4);
+		break;
+	}
+	case 3:
+	{
+		printf_s("a * tg(b * x + c) + d\n");
+		funcCof = GetCoefficients(funcCof, 4);
+		break;
+	}
+	case 4:
+	{
+		printf_s("a * ctg(b * x + c) + d\n");
+		GetCoefficients(funcCof, 4);
+		break;
+	}
+	case 5:
+	{
+		printf_s("|a * x + b| + c \n");
+		funcCof = GetCoefficients(funcCof, 3);
+		break;
+	}
+	}
 	Init();
 
 	SDL_SetRenderDrawColor(ren, 255, 255, 255, 0);
@@ -312,7 +444,7 @@ int main(int argc, char* argv[])
 
 	DrawAxis();
 
-	DrawGraph(arithmetic , numbers, tempNum);
+	DrawGraph(arithmetic , numbers, tempNum, funcCof, type);
 	
 	SDL_RenderPresent(ren);
 
