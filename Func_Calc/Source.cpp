@@ -9,7 +9,7 @@
 #define WINDOW_HEIGHT 700
 #define WINDOW_WIDTH 1000
 #define ARRAY_SIZE 100
-#define SEGMENT 40
+#define SEGMENT 10
 #define STEP 0.01
 
 
@@ -157,19 +157,19 @@ void DrawGraph()
 {
 	SDL_SetRenderDrawColor(ren, 128, 0, 128, 0);
 
-	double tempX1 = -10, tempX = 0, tempY = 0;
+	double tempX1 = -WINDOW_WIDTH / 2 / SEGMENT, tempX = 0, tempY = 0;
 	double tempY1 = sin(tempX1);
 
-	for (double i = -10; i <= 10; i += STEP)
+	for (double i = -WINDOW_WIDTH/2/SEGMENT; i <= WINDOW_WIDTH / 2 / SEGMENT; i += STEP)
 	{
-		SDL_RenderDrawPoint(ren, i * SEGMENT + WINDOW_WIDTH / 2, -cos(i) * SEGMENT + WINDOW_HEIGHT / 2);
+		//SDL_RenderDrawPoint(ren, i * SEGMENT + WINDOW_WIDTH / 2, -cos(i) * SEGMENT + WINDOW_HEIGHT / 2);
 
 
-		//tempX = tempX1;
-		//tempY = tempY1;
-		//tempX1 = i;
-		//tempY1 = sin(tempX1);
-		//SDL_RenderDrawLine(ren, (tempX+WINDOW_WIDTH/2)*SEGMENT*10, (tempY+WINDOW_HEIGHT/2) * SEGMENT * 10, (tempX1+WINDOW_WIDTH/2) * SEGMENT * 10, (tempY1+WINDOW_HEIGHT/2) * SEGMENT * 10);
+		tempX = tempX1;
+		tempY = tempY1;
+		tempX1 = i;
+		tempY1 = -sin(tempX1);
+		SDL_RenderDrawLine(ren, tempX * SEGMENT + WINDOW_WIDTH / 2, tempY * SEGMENT + WINDOW_HEIGHT / 2, tempX1 * SEGMENT + WINDOW_WIDTH / 2, tempY1 * SEGMENT + WINDOW_HEIGHT / 2);
 	}
 }
 
