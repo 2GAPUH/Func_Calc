@@ -132,7 +132,7 @@ void GetFunc(char func[])
 	for (i; temp != 13; )
 	{
 		temp = _getch();
-		if (IsArithmetic(temp) )
+		if (IsArithmetic(temp) && not(IsArithmetic( func[i])) && i != -1)
 		{
 			i++;
 			printf_s("%c", temp);
@@ -204,6 +204,7 @@ void CopyArrayNum(double numbers[], double tempNum[])
 
 void Calculations(char arithmetic[], double tempNum[])
 {
+	//Обратная Польская нотация
 	double temp = 0, temp1 = 0;
 
 	for (int i = 0; arithmetic[i] != '\n';i++)
@@ -330,11 +331,31 @@ void DrawGraph(char arithmetic[], double numbers[], double tempNum[], coefficien
 
 		else if (type == 5)
 		{
-			tempY1 = -(abs(funcCof.a * i + funcCof.b ) + funcCof.c);
-			//tempY1 = -( sqrt(cos(i)) * cos(200 * i) + sqrt(abs(i)) - 3.14 / 4 * pow((4 - i * i), 0.01));
+			//tempY1 = -(abs(funcCof.a * i + funcCof.b ) + funcCof.c);
+			tempY1 = -( sqrt(cos(i)) * cos(200 * i) + sqrt(abs(i)) - 3.14 / 4 * pow((4 - i * i), 0.01));
 			//tempY1 = -sqrt(10.1 * 10 - i * i);
 		}
 
+		else if (type == 6)
+		{
+			if (funcCof.b * i + funcCof.c < -1 || funcCof.b * i + funcCof.c > 1)
+				continue;
+			tempY1 = -(funcCof.a * asin(funcCof.b * i + funcCof.c) + funcCof.d);
+		}
+
+		else if (type == 7)
+		{
+			if (funcCof.b * i + funcCof.c < -1 || funcCof.b * i + funcCof.c > 1)
+				continue;
+			tempY1 = -(funcCof.a * acos(funcCof.b * i + funcCof.c) + funcCof.d);
+		}
+
+		else if (type == 8)
+		{
+			if (funcCof.b * i + funcCof.c < -1 || funcCof.b * i + funcCof.c > 1)
+				continue;
+			tempY1 = -(funcCof.a * atan(funcCof.b * i + funcCof.c) + funcCof.d);
+		}
 
 		if (tempY1 > WINDOW_HEIGHT / SEGMENT)
 			tempY1 = WINDOW_HEIGHT / SEGMENT;
@@ -391,52 +412,80 @@ int main(int argc, char* argv[])
 3 - a * tg(b * x + c) + d \n\
 4 - a * ctg(b * x + c) + d \n\
 5 - |a * x + b| + c \n\
-Choose your function type:");
-	scanf_s("%d", &type);
+6 - a * asin(b * x + c) + d \n\
+7 - a * acos(b * x + c) + d \n\
+8 - a * atg(b * x + c) + d \n\ ");
 
-	system("cls");
 
-	switch (type)
-	{
-	case 0:
-	{
-		printf_s("Enter your function: ");
-		GetFunc(func);
-		GetArithmetic(func, arithmetic);
-		GetNumbers(func, numbers);
-		break;
-	}
-	case 1:
-	{
-		printf_s("a * sin(b * x + c) + d\n");
-		funcCof = GetCoefficients(funcCof, 4);
-		break;
-	}
-	case 2:
-	{
-		printf_s("a * cos(b * x + c) + d\n");
-		funcCof = GetCoefficients(funcCof, 4);
-		break;
-	}
-	case 3:
-	{
-		printf_s("a * tg(b * x + c) + d\n");
-		funcCof = GetCoefficients(funcCof, 4);
-		break;
-	}
-	case 4:
-	{
-		printf_s("a * ctg(b * x + c) + d\n");
-		GetCoefficients(funcCof, 4);
-		break;
-	}
-	case 5:
-	{
-		printf_s("|a * x + b| + c \n");
-		funcCof = GetCoefficients(funcCof, 3);
-		break;
-	}
-	}
+
+	do {
+		printf_s("Choose your function type:");
+		scanf_s("%d", &type);
+		system("cls");
+		switch (type)
+		{
+		case 0:
+		{
+			printf_s("Enter your function: ");
+			GetFunc(func);
+			GetArithmetic(func, arithmetic);
+			GetNumbers(func, numbers);
+			break;
+		}
+		case 1:
+		{
+			printf_s("a * sin(b * x + c) + d\n");
+			funcCof = GetCoefficients(funcCof, 4);
+			break;
+		}
+		case 2:
+		{
+			printf_s("a * cos(b * x + c) + d\n");
+			funcCof = GetCoefficients(funcCof, 4);
+			break;
+		}
+		case 3:
+		{
+			printf_s("a * tg(b * x + c) + d\n");
+			funcCof = GetCoefficients(funcCof, 4);
+			break;
+		}
+		case 4:
+		{
+			printf_s("a * ctg(b * x + c) + d\n");
+			funcCof = GetCoefficients(funcCof, 4);
+			break;
+		}
+		case 5:
+		{
+			printf_s("|a * x + b| + c \n");
+			funcCof = GetCoefficients(funcCof, 3);
+			break;
+		}
+		case 6:
+		{
+			printf_s("a * asin(b * x + c) + d\n");
+			funcCof = GetCoefficients(funcCof, 4);
+			break;
+		}
+		case 7:
+		{
+			printf_s("a * acos(b * x + c) + d\n");
+			funcCof = GetCoefficients(funcCof, 4);
+			break;
+		}
+		case 8:
+		{
+			printf_s("a * atg(b * x + c) + d\n");
+			funcCof = GetCoefficients(funcCof, 4);
+			break;
+		}
+
+		default:
+			printf_s("Try again!\n");
+		}
+	} while (type > 8 || type < 0);
+	
 	Init();
 
 	SDL_SetRenderDrawColor(ren, 255, 255, 255, 0);
