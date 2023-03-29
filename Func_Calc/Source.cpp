@@ -357,6 +357,13 @@ void DrawGraph(char arithmetic[], double numbers[], double tempNum[], coefficien
 			tempY1 = -(funcCof.a * atan(funcCof.b * i + funcCof.c) + funcCof.d);
 		}
 
+		else if (type == 9)
+		{
+			if (funcCof.b * i + funcCof.c < -1 || funcCof.b * i + funcCof.c > 1)
+				continue;
+			tempY1 = -(funcCof.a * atan(funcCof.b * i + funcCof.c) + funcCof.d);
+		}
+
 		if (tempY1 > WINDOW_HEIGHT / SEGMENT)
 			tempY1 = WINDOW_HEIGHT / SEGMENT;
 		SDL_RenderDrawLine(ren, tempX * SEGMENT + WINDOW_WIDTH / 2, tempY * SEGMENT + WINDOW_HEIGHT / 2, tempX1 * SEGMENT + WINDOW_WIDTH / 2, tempY1 * SEGMENT + WINDOW_HEIGHT / 2);
@@ -414,7 +421,8 @@ int main(int argc, char* argv[])
 5 - |a * x + b| + c \n\
 6 - a * asin(b * x + c) + d \n\
 7 - a * acos(b * x + c) + d \n\
-8 - a * atg(b * x + c) + d \n\ ");
+8 - a * atg(b * x + c) + d \n\
+9 - Y = A * ln(x) + B, [1;15]. ");
 
 
 
@@ -477,6 +485,12 @@ int main(int argc, char* argv[])
 		case 8:
 		{
 			printf_s("a * atg(b * x + c) + d\n");
+			funcCof = GetCoefficients(funcCof, 4);
+			break;
+		}
+		case 9:
+		{
+			printf_s("Y = A * ln(x) + B, [1;15] \n");
 			funcCof = GetCoefficients(funcCof, 4);
 			break;
 		}
